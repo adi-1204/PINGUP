@@ -4,6 +4,7 @@ import { inngest } from "../inngest/index.js"
 import fs from 'fs'
 import { clerkClient } from "@clerk/clerk-sdk-node"
 import Connection from "../models/Connections.js"
+import Post from "../models/Post.js"
 
 
 // Get User Data using userId
@@ -265,6 +266,24 @@ export const acceptConnectionRequest = async (req, res) => {
 
         res.json({ success: true, message: 'Connection accepted successfully' });
 
+    } catch (error) {
+        console.log(error);
+        res.json({success: false, message: error.message})
+    }
+}
+
+// Get user profile
+
+export const getUserProfiles = async (req, res) =>{
+    try {
+        const { profileId } = req.body;
+        const profile = await User.findById(profileId)
+        if(!profile){
+            return res.json({ success: false, message: "Profile not found" });
+        }
+        const posts = await Post.find({user: profileId}).populate('user')
+
+        res.json({success: true, profile, posts})
     } catch (error) {
         console.log(error);
         res.json({success: false, message: error.message})
